@@ -15,10 +15,14 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,9 +30,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.example.android.pets.data.PetContract;
 import com.example.android.pets.data.PetContract.PetEntry;
+import com.example.android.pets.data.PetDbHelper;
 
 /**
  * Allows user to create a new pet or edit an existing one.
@@ -46,6 +52,7 @@ public class EditorActivity extends AppCompatActivity {
 
     /** EditText field to enter the pet's gender */
     private Spinner mGenderSpinner;
+
 
     /**
      * Gender of the pet. The possible values are:
@@ -106,6 +113,43 @@ public class EditorActivity extends AppCompatActivity {
         });
     }
 
+    private void insertPet(){
+
+        // get values from fields
+        String petName = mNameEditText.getText().toString().trim();
+        String petBreed = mBreedEditText.getText().toString().trim();
+        int petWeight = Integer.parseInt(mWeightEditText.getText().toString().trim());
+
+        //create object to collect data
+        ContentValues values = new ContentValues();
+        values.put(PetEntry.COLUMN_PET_NAME,petName);
+        values.put(PetEntry.COLUMN_PET_BREED,petBreed);
+        values.put(PetEntry.COLUMN_PET_GENDER,mGender);
+        values.put(PetEntry.COLUMN_PET_WEIGHT,petWeight);
+
+        //create helper object
+        PetDbHelper mDbHelper = new PetDbHelper(this);
+        //create db object to connect to db
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        //insert puppy into db and get row id back or error code of -1
+
+        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
+        //create context for the toast to know what activity to display on
+        Context context = getApplicationContext();
+        //set message to display
+        CharSequence text = "Pet saved with row Id: " + newRowId;
+        //check for error and update text to reflect that
+        if(newRowId == -1){ text = "Error with saving pet"; }
+        //set the duration
+        int duration = Toast.LENGTH_SHORT;
+        //create toast object
+        Toast toast = Toast.makeText(context, text, duration);
+        //display toast message
+        toast.show();
+
+
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu options from the res/menu/menu_editor.xml file.
@@ -120,7 +164,10 @@ public class EditorActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             // Respond to a click on the "Save" menu option
             case R.id.action_save:
-                // Do nothing for now
+                //add pet to db
+                insertPet();
+                //exit activity
+                finish();
                 return true;
             // Respond to a click on the "Delete" menu option
             case R.id.action_delete:
