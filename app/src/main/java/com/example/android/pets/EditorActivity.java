@@ -15,9 +15,11 @@
  */
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -127,25 +129,23 @@ public class EditorActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PET_GENDER,mGender);
         values.put(PetEntry.COLUMN_PET_WEIGHT,petWeight);
 
-        //create helper object
-        PetDbHelper mDbHelper = new PetDbHelper(this);
-        //create db object to connect to db
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
-        //insert puppy into db and get row id back or error code of -1
+        //insert new pet
+        Uri uri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
 
-        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
         //create context for the toast to know what activity to display on
         Context context = getApplicationContext();
-        //set message to display
-        CharSequence text = "Pet saved with row Id: " + newRowId;
-        //check for error and update text to reflect that
-        if(newRowId == -1){ text = "Error with saving pet"; }
-        //set the duration
-        int duration = Toast.LENGTH_SHORT;
-        //create toast object
-        Toast toast = Toast.makeText(context, text, duration);
-        //display toast message
-        toast.show();
+
+
+        // Show a toast message depending on whether or not the insertion was successful
+        if (uri == null) {
+            // If the new content URI is null, then there was an error with insertion.
+            Toast.makeText(this, getString(R.string.editor_insert_pet_failed),
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            // Otherwise, the insertion was successful and we can display a toast.
+            Toast.makeText(this, getString(R.string.editor_insert_pet_successful),
+                    Toast.LENGTH_SHORT).show();
+        }
 
 
     }

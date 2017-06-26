@@ -1,9 +1,11 @@
 package com.example.android.pets;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +17,11 @@ import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
+
+import static android.R.attr.id;
+import static com.example.android.pets.data.PetContract.BASE_CONTENT_URI;
+import static com.example.android.pets.data.PetContract.PATH_PETS;
+import static com.example.android.pets.data.PetProvider.LOG_TAG;
 
 /**
  * Displays list of pets that were entered and stored in the app.
@@ -55,12 +62,7 @@ public class CatalogActivity extends AppCompatActivity {
      * the pets database.
      */
     private void displayDatabaseInfo() {
-        // To access our database, we instantiate our subclass of SQLiteOpenHelper
-        // and pass the context, which is the current activity.
-        PetDbHelper mDbHelper = new PetDbHelper(this);
 
-        // Create and/or open a database to read from it
-        SQLiteDatabase db = mDbHelper.getReadableDatabase();
 
         String[] projection = {
                 PetEntry._ID,
@@ -71,7 +73,14 @@ public class CatalogActivity extends AppCompatActivity {
         };
 
 
-        Cursor cursor = db.query(PetEntry.TABLE_NAME,projection,null,null,null,null,null);
+
+        Cursor cursor = getContentResolver().query(
+                PetEntry.CONTENT_URI,               // The Content URI of the pets table
+                projection,                         // The columns to return for each row
+                null,                               // Selection Critera
+                null,                               // Selection Args Critera
+                null                                // Sort order for the returned rows
+        );
 
         TextView displayView = (TextView) findViewById(R.id.text_view_pet);
 
@@ -119,7 +128,7 @@ public class CatalogActivity extends AppCompatActivity {
         }
     }
 
-    private void insertPet(){
+    private void insertPet() {
 
         //gather info about dummy data
         ContentValues values = new ContentValues();
@@ -128,13 +137,12 @@ public class CatalogActivity extends AppCompatActivity {
         values.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDER_MALE);
         values.put(PetEntry.COLUMN_PET_WEIGHT, 7);
 
-        //create db object to connect to db
-        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+        //insert new pet
+        Uri uri = getContentResolver().insert(PetEntry.CONTENT_URI, values);
 
-        //insert puppy into db
-        long newRowId = db.insert(PetEntry.TABLE_NAME, null, values);
+        //get row id for validation check
+        long newRowId = ContentUris.parseId(uri);
 
-        Log.v("CatalogActivity", "New row ID " +newRowId);
     }
 
     @Override
