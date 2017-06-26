@@ -151,11 +151,28 @@ public class PetProvider extends ContentProvider {
      * for that specific row in the database.
      */
     private Uri insertPet(Uri uri, ContentValues values) {
-
-
-
+        // Create connection to the database
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
 
+        // Check that the name is not null
+        String name = values.getAsString(PetEntry.COLUMN_PET_NAME);
+        if (name.length() == 0) {
+            throw new IllegalArgumentException("Pet requires a name");
+        }
+
+        // Check that the breed is not null
+        String breed = values.getAsString(PetEntry.COLUMN_PET_BREED);
+        if (breed.length() == 0) {
+            throw new IllegalArgumentException("Pet requires a breed");
+        }
+
+        // Check that the weight is not negative
+        int weight = values.getAsInteger(PetEntry.COLUMN_PET_WEIGHT);
+        if (weight < 1) {
+            throw new IllegalArgumentException("Pet requires a correct weight");
+        }
+
+        // insert pet and get the row id
         long id = db.insert(PetEntry.TABLE_NAME, null, values);
 
         // If the ID is -1, then the insertion failed. Log an error and return null.
