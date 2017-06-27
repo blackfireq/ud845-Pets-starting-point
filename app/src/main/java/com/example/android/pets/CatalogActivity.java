@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
@@ -27,8 +28,6 @@ import static com.example.android.pets.data.PetProvider.LOG_TAG;
  * Displays list of pets that were entered and stored in the app.
  */
 public class CatalogActivity extends AppCompatActivity {
-
-    PetDbHelper mDbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +44,6 @@ public class CatalogActivity extends AppCompatActivity {
             }
         });
 
-        //create helper object
-        mDbHelper = new PetDbHelper(this);
-
         displayDatabaseInfo();
     }
 
@@ -63,7 +59,6 @@ public class CatalogActivity extends AppCompatActivity {
      */
     private void displayDatabaseInfo() {
 
-
         String[] projection = {
                 PetEntry._ID,
                 PetEntry.COLUMN_PET_NAME,
@@ -71,8 +66,6 @@ public class CatalogActivity extends AppCompatActivity {
                 PetEntry.COLUMN_PET_GENDER,
                 PetEntry.COLUMN_PET_WEIGHT
         };
-
-
 
         Cursor cursor = getContentResolver().query(
                 PetEntry.CONTENT_URI,               // The Content URI of the pets table
@@ -82,50 +75,20 @@ public class CatalogActivity extends AppCompatActivity {
                 null                                // Sort order for the returned rows
         );
 
-        TextView displayView = (TextView) findViewById(R.id.text_view_pet);
+        // find the ListView to populate
+        ListView petListView = (ListView)findViewById(R.id.list);
 
-        displayView.setText("Number of rows in pets database table: " + cursor.getCount() +"\n\n");
+        // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
+        View emptyView = findViewById(R.id.empty_view);
 
-        //append the column names to the textview
-        displayView.append(("\n" + PetEntry._ID + " - " +
-                    PetEntry.COLUMN_PET_NAME + " - " +
-                    PetEntry.COLUMN_PET_BREED + " - " +
-                    PetEntry.COLUMN_PET_GENDER + " - " +
-                    PetEntry.COLUMN_PET_WEIGHT + "\n"
-        ));
+        //setup cursor adapter
+        PetCursorAdapter adapter = new PetCursorAdapter(this, cursor);
 
-        //get the indicies of all the columns
-        int idColumnIndex = cursor.getColumnIndex(PetEntry._ID);
-        int nameColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_NAME);
-        int breedColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_BREED);
-        int genderColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_GENDER);
-        int weightColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT);
+        //attach cursor adapter to listview
+        petListView.setAdapter(adapter);
 
-
-        try {
-            while(cursor.moveToNext()) {
-
-                //get values of current position
-                int currentID = cursor.getInt(idColumnIndex);
-                String currentName = cursor.getString(nameColumnIndex);
-                String currentBreed = cursor.getString(breedColumnIndex);
-                String currentGender = cursor.getString(genderColumnIndex);
-                String currentWeight = cursor.getString(weightColumnIndex);
-
-                //append the curent pet to the textview
-                displayView.append(("\n" + currentID + "-" +
-                        currentName + " - " +
-                        currentBreed + " - " +
-                        currentGender + " - " +
-                        currentWeight
-                ));
-            }
-
-        } finally {
-            // Always close the cursor when you're done reading from it. This releases all its
-            // resources and makes it invalid.
-            cursor.close();
-        }
+        //attach empty view
+        petListView.setEmptyView(emptyView);
     }
 
     private void insertPet() {

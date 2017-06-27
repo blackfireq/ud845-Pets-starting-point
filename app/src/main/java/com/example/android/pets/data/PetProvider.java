@@ -204,12 +204,12 @@ public class PetProvider extends ContentProvider {
         }
 
         // Check that the gender is right
-        int gender = values.getAsInteger(PetEntry.COLUMN_PET_GENDER);
-        if (gender != PetEntry.GENDER_UNKNOWN ||
-                gender != PetEntry.GENDER_MALE ||
-                gender != PetEntry.GENDER_FEMALE) {
-            throw new IllegalArgumentException("Pet requires a correct Gender");
-        }
+//        int gender = values.getAsInteger(PetEntry.COLUMN_PET_GENDER);
+//        if (gender != PetEntry.GENDER_UNKNOWN ||
+//                gender != PetEntry.GENDER_MALE ||
+//                gender != PetEntry.GENDER_FEMALE) {
+//            throw new IllegalArgumentException("Pet requires a correct Gender");
+//        }
 
         // Check that the weight is not negative
         int weight = values.getAsInteger(PetEntry.COLUMN_PET_WEIGHT);
