@@ -20,8 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".CatalogActivity"
-            android:label="@string/app_name">
+            android:name=".CatalogActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -29,7 +28,6 @@
         </activity>
         <activity
             android:name=".EditorActivity"
-            android:label="@string/editor_activity_title_new_pet"
             android:theme="@style/EditorTheme"
             android:parentActivityName=".CatalogActivity" >
             <!-- Parent activity meta-data to support 4.0 and lower -->

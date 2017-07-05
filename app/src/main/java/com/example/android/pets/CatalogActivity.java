@@ -16,12 +16,16 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.android.pets.data.PetContract.PetEntry;
 import com.example.android.pets.data.PetDbHelper;
 
+import java.net.URI;
+
+import static android.R.attr.editTextBackground;
 import static android.R.attr.id;
 import static com.example.android.pets.data.PetContract.BASE_CONTENT_URI;
 import static com.example.android.pets.data.PetContract.PATH_PETS;
@@ -41,8 +45,6 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_catalog);
 
-
-
         // Setup FAB to open EditorActivity
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -53,19 +55,33 @@ public class CatalogActivity extends AppCompatActivity implements LoaderManager.
             }
         });
 
-
-
         // find the ListView to populate
         ListView petListView = (ListView)findViewById(R.id.list);
+
         // Find and set empty view on the ListView, so that it only shows when the list has 0 items.
         View emptyView = findViewById(R.id.empty_view);
         petListView.setEmptyView(emptyView);
 
+        // create empty Adapter for the loader to populate
         mCursorAdapter = new PetCursorAdapter(this,null);
         petListView.setAdapter(mCursorAdapter);
 
+        //Setup item click listner
+        petListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
 
+                Intent editPetIntent = new Intent(CatalogActivity.this,EditorActivity.class);
 
+                Uri currentPetUri = ContentUris.withAppendedId(PetEntry.CONTENT_URI, id);
+                //Set the URI on the data field of the intent
+                editPetIntent.setData(currentPetUri);
+
+                startActivity(editPetIntent);
+            }
+        });
+
+        //start cursor loader
         getLoaderManager().initLoader(PETS_LOADER_ID, null, this);
     }
 
