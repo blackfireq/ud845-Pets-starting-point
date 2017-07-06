@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.CancellationSignal;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.android.pets.data.PetDbHelper;
@@ -181,6 +182,8 @@ public class PetProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Deletion is not supported for " + uri);
         }
+        // If 1 or more rows were deleted, then notify all listeners that the data at the
+        // given URI has changed
     }
 
     /**
@@ -209,13 +212,13 @@ public class PetProvider extends ContentProvider {
 
         // Check that the name is not null
         String name = values.getAsString(PetEntry.COLUMN_PET_NAME);
-        if (name.length() == 0) {
+        if (TextUtils.isEmpty(name)) {
             throw new IllegalArgumentException("Pet requires a name");
         }
 
         // Check that the breed is not null
         String breed = values.getAsString(PetEntry.COLUMN_PET_BREED);
-        if (breed.length() == 0) {
+        if (TextUtils.isEmpty(breed)) {
             throw new IllegalArgumentException("Pet requires a breed");
         }
 
@@ -261,20 +264,20 @@ public class PetProvider extends ContentProvider {
 
         // Check that the name is not null
         String name = values.getAsString(PetEntry.COLUMN_PET_NAME);
-        if (name.length() == 0) {
+        if (TextUtils.isEmpty(name)) {
             throw new IllegalArgumentException("Pet requires a name");
         }
 
         // Check that the breed is not null
         String breed = values.getAsString(PetEntry.COLUMN_PET_BREED);
-        if (breed.length() == 0) {
+        if (TextUtils.isEmpty(breed)) {
             throw new IllegalArgumentException("Pet requires a breed");
         }
 
         // Check that the gender is right
         int gender = values.getAsInteger(PetEntry.COLUMN_PET_GENDER);
-        if (gender != PetEntry.GENDER_UNKNOWN ||
-                gender != PetEntry.GENDER_MALE ||
+        if (gender != PetEntry.GENDER_UNKNOWN &&
+                gender != PetEntry.GENDER_MALE &&
                 gender != PetEntry.GENDER_FEMALE) {
             throw new IllegalArgumentException("Pet requires a correct Gender");
         }
